@@ -11,8 +11,7 @@ contract Crowdsale {
     // Constants for token distributions.
     uint public constant FOUNDER_STAKE1 = 0;        // 6.5%
     uint public constant FOUNDER_STAKE2 = 0;        // 3.5%
-    uint public constant COMPANY_RETAINER    = 0;   // 50% 
-    uint public constant EARLY_CONTRIBUTOR2 = 0;    // 10%
+    uint public constant COMPANY_RETAINER    = 0;   // 60%
     uint public constant CONTRIBUTION_STAKE = 0;    // 30%
 
     uint public minContribution = 0.01 ether;

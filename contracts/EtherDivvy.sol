@@ -3,9 +3,9 @@ import './base/SafeMath.sol';
 
 contract EtherDivvy {
 
-    address one;    
-    address two;
-    address three;
+    address public founderOne;    
+    address public founderTwo;
+    address public founderThree;
 
     address multisig;
 
@@ -17,12 +17,25 @@ contract EtherDivvy {
     function divvy()
         onlyMultisig
     {
-        uint stake1 = SafeMath.div(this.balance, 3);
-        uint stake2 = SafeMath.div(this.balance, 20);
-        uint stake3 = SafeMath.sub(SafeMath.sub(this.balance, stake1), stake2);
+        uint oneTenth = SafeMath.div(this.balance, 10);
+        uint stake1 = SafeMath.mul(oneTenth, 2);
+        uint stake2 = SafeMath.mul(oneTenth, 3);
+        uint stake3 = SafeMath.mul(oneTenth, 5);
 
-        one.transfer(stake1);
-        two.transfer(stake2);
-        three.transfer(stake3);
+        founderOne.transfer(stake1);
+        founderTwo.transfer(stake2);
+        founderThree.transfer(stake3);
+    }
+
+    function setAddresses(address _one, address _two, address _three)
+        onlyMultisig
+    {
+        require(_one != 0x0 &&
+                _two != 0x0 &&
+                _three != 0x0);
+
+        founderOne = _one;
+        founderTwo = _two;
+        founderThree = _three;
     }
 }

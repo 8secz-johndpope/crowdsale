@@ -1,16 +1,18 @@
 pragma solidity ^0.4.13;
 import './base/SafeMath.sol';
+import './base/Stoppable.sol';
 import './AO.sol';
 
-contract Crowdsale {
+contract Crowdsale is Stoppable {
     using SafeMath for uint;
 
     AO public saveToken;                        // Address of the AO contract.
     address public multisig;                    // Address of TokenBnk company wallets.
 
     // Constants for token distributions.
-    uint public constant FOUNDER_STAKE1 = 0;        // 6.5%
-    uint public constant FOUNDER_STAKE2 = 0;        // 3.5%
+    uint public constant FOUNDER_STAKE1 = 0;        // 5%
+    uint public constant FOUNDER_STAKE2 = 0;        // 3%
+    uint public constant FOUNDER_STAKE3 = 0;        // 2%
     uint public constant COMPANY_RETAINER    = 0;   // 60%
     uint public constant CONTRIBUTION_STAKE = 0;    // 30%
 
@@ -20,8 +22,6 @@ contract Crowdsale {
     bool public tokenTransfersEnabled = false; // Token transfers will be enabled at the
                                                // conclusion of the sale.
     
-    uint public softCapAmount = 0;             // Amount in wei that will trigger soft cap duration.
-    uint public softCapDuration = 0;           // Seconds after the softcap that sale will continue unless hardcap.
     uint public hardCapAmount = 0;             // Amount in wei that will trigger hard cap / end of sale.
     uint public startTime = 0;                 // UNIX timestamp for start of sale.
     uint public endTime = 0;                   // UNIX timestamp for end of sale.
@@ -37,27 +37,6 @@ contract Crowdsale {
         require(multisig == msg.sender);
         _;
     }
-
-    // TEMP EMERGENCY STOP
-    bool public stopped;
-
-    modifier stopInEmergency {
-        require(!stopped);
-        _;
-    }
-
-    function stopSale()
-        onlyMultisig 
-    {
-        stopped = true;
-    }
-
-    function resumeSale()
-        onlyMultisig
-    {
-        stopped = false;
-    }
-    // END TEMP EMERGENCY STOP
 
     function Crowdsale(address _companyWallet) {
         multisig = _companyWallet;
@@ -225,7 +204,6 @@ contract Crowdsale {
     /*
      * Events
      */
-    event Contribution(address indexed who, uint indexed amount, uint indexed timestamp);
-    event SoftCapReached(uint timestamp);
-    event HardCapReached(uint timestamp);
+    event Contribution(address indexed who, uint indexed amount, uint indexed amtBought);
+    event HardCapReached();
 }

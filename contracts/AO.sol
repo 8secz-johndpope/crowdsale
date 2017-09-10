@@ -7,7 +7,7 @@ import './token/SmartToken.sol';
 contract AO is SmartToken {
     
     function AO() 
-        SmartToken("SaveToken",
+        SmartToken("Save Token",
                    "AO",
                    18)
     {}

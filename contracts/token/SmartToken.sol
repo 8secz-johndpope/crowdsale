@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 import '../base/Ownable.sol';
 import '../base/SafeMath.sol';
 import '../interfaces/ISmartToken.sol';
@@ -12,7 +12,7 @@ contract SmartToken is ISmartToken, Ownable, ERC20 {
 
     string public version = "0.3";
 
-    bool public transfersEnabled = true;    // true if transfer/transferFrom are enabled, false if not
+    bool public transfersEnabled = false;    // true if transfer/transferFrom are enabled, false if not
 
     // triggered when a smart token is deployed - the _token address is defined for forward compatibility, in case we want to trigger the event from a factory
     event NewSmartToken(address _token);
@@ -120,7 +120,11 @@ contract SmartToken is ISmartToken, Ownable, ERC20 {
 
         @return true if the transfer was successful, false if it wasn't
     */
-    function transferFrom(address _from, address _to, uint256 _value) public transfersAllowed returns (bool success) {
+    function transferFrom(address _from, address _to, uint256 _value) 
+        public 
+        transfersAllowed 
+        returns (bool success)
+    {
         assert(super.transferFrom(_from, _to, _value));
         return true;
     }

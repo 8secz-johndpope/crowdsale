@@ -17,14 +17,14 @@ contract EtherDivvy {
     function divvy()
         onlyMultisig
     {
-        uint oneTenth = SafeMath.div(this.balance, 10);
-        uint stake1 = SafeMath.mul(oneTenth, 2);
-        uint stake2 = SafeMath.mul(oneTenth, 3);
-        uint stake3 = SafeMath.mul(oneTenth, 5);
+        uint oneHundredth = SafeMath.div(this.balance, 100);
+        uint fivePercent = SafeMath.mul(oneHundredth, 5);
+        uint threePercent = SafeMath.mul(oneHundredth, 3);
+        uint twoPercent = SafeMath.mul(oneHundredth, 2);
 
-        founderOne.transfer(stake1);
-        founderTwo.transfer(stake2);
-        founderThree.transfer(stake3);
+        founderOne.transfer(twoPercent);
+        founderTwo.transfer(threePercent);
+        founderThree.transfer(fivePercent);
     }
 
     function setAddresses(address _one, address _two, address _three)

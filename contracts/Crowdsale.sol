@@ -5,7 +5,8 @@ import './AO.sol';
 
 /*
     Contribution Crowdsale for TokenBnk Save Tokens. Influenced by District0x's contribution
-    contract model.
+    contract model. With the major change being that we are using an 0x influenced vesting
+    contract instead of an in-built solution.
  **/
 contract Crowdsale is Stoppable {
     using SafeMath for uint;
@@ -15,6 +16,7 @@ contract Crowdsale is Stoppable {
     address public founder1;                            // Wallet of founder 1.
     address public founder2;                            // Wallet of founder 2.
     address public founder3;                            // Wallet of founder 3.
+    address public vestingSchedule;                     // Contract for vesting schedule.
 
     // Constants for token distributions.
     uint public constant FOUNDER_STAKE1 = 0;            // 5%
@@ -59,7 +61,7 @@ contract Crowdsale is Stoppable {
 
     // @notice Returns true if contribution period is currently running
     function isContribPeriodRunning() constant returns (bool) {
-        return !hardCapReached &&
+        return !hardCapReached&&
                isEnabled &&
                startTime <= now &&
                endTime > now;
@@ -122,7 +124,7 @@ contract Crowdsale is Stoppable {
             msg.sender.transfer(excessContribution);
         }
 
-        NewContribution(_contributor, contribution, newTotal, contributorKeys.length)
+        NewContribution(_contributor, contribution, newTotal, contributorKeys.length);
     }
 
     /// @notice After the conclusion of the sale this function will need to be called
@@ -155,6 +157,20 @@ contract Crowdsale is Stoppable {
             }
             i++;
         }
+    }
+
+    /// @notice This function will be called at the conclusion of the sale and will
+    /// transfer all company and founder tokens to the vesting schedule contract.
+    function vestTokens()
+        onlyOwner
+    {
+        require(isEnabled);
+        require(endTime < now);
+
+        saveToken.transfer(vestingSchedule, FOUNDER_STAKE1
+            .add(FOUNDER_STAKE2)
+            .add(FOUNDER_STAKE3)
+            .add(COMPANY_RETAINER));
     }
 
     /*
@@ -263,6 +279,6 @@ contract Crowdsale is Stoppable {
      * Events
      */
     event NewContribution(address indexed who, uint amount, uint totalContribution, uint lengthOfContributors);
-    event OnCompensation(address indexed who, uint amount)
+    event OnCompensation(address indexed who, uint amount);
     event HardCapReached();
 }

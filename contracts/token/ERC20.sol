@@ -5,11 +5,10 @@ import '../interfaces/IERC20.sol';
 
 /**
     ERC20 Standard Token implementation
-
-    TODO: implement SafeMath, read over the contract
 */
 contract ERC20 is IERC20, Utils {
-    string public standard = "Token 0.1";
+    using SafeMath for uint;
+
     string public name = "";
     string public symbol = "";
     uint8 public decimals = 0;
@@ -49,8 +48,8 @@ contract ERC20 is IERC20, Utils {
         validAddress(_to)
         returns (bool success)
     {
-        balanceOf[msg.sender] = SafeMath.sub(balanceOf[msg.sender], _value);
-        balanceOf[_to] = SafeMath.add(balanceOf[_to], _value);
+        balanceOf[msg.sender] = balanceOf[msg.sender].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
         Transfer(msg.sender, _to, _value);
         return true;
     }
@@ -72,9 +71,9 @@ contract ERC20 is IERC20, Utils {
         returns (bool success)
     {
         require(_to != 0x0);    // can't repeat modifier
-        allowance[_from][msg.sender] = SafeMath.sub(allowance[_from][msg.sender], _value);
-        balanceOf[_from] = SafeMath.sub(balanceOf[_from], _value);
-        balanceOf[_to] = SafeMath.add(balanceOf[_to], _value);
+        allowance[_from][msg.sender] = allowance[_from][msg.sender].sub(_value);
+        balanceOf[_from] = balanceOf[_from].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
         Transfer(_from, _to, _value);
         return true;
     }

@@ -47,7 +47,9 @@ contract SmartToken is ISmartToken, Ownable, ERC20 {
 
         @param _disable    true to disable transfers, false to enable them
     */
-    function disableTransfers(bool _disable) public onlyOwner {
+    function disableTransfers(bool _disable) 
+        public onlyOwner
+    {
         transfersEnabled = !_disable;
     }
 

@@ -12,11 +12,8 @@ contract Crowdsale is Stoppable {
     using SafeMath for uint;
 
     AO public saveToken;                                // Address of the AO contract.
-    address public wallet;                              // Wallet that recieves all sale funds.
-    address public founder1;                            // Wallet of founder 1.
-    address public founder2;                            // Wallet of founder 2.
-    address public founder3;                            // Wallet of founder 3.
-    address public vestingSchedule;                     // Contract for vesting schedule.
+    address public wallet;                              // Wallet that recieves all sale funds. Will be an instance of EtherDivvy.sol.
+    address public vestingSchedule;                     // Contract for vesting schedule of company and founder tokens.
 
     // Constants for token distributions.
     uint public constant FOUNDER_STAKE1 = 0;            // 5%
@@ -37,7 +34,7 @@ contract Crowdsale is Stoppable {
         uint amountCompensated;
     }
 
-    uint public exchangeRate = 0;                       // The number of AO tokens that will be sent per ether.
+    uint public exchangeRate = 30000;                   // The number of AO tokens that will be created per ether.
     uint public hardCapAmount = 0;                      // Amount in wei that will trigger hard cap / end of sale.
     uint public startTime = 0;                          // UNIX timestamp for start of sale.
     uint public endTime = 0;                            // UNIX timestamp for end of sale.
@@ -48,20 +45,14 @@ contract Crowdsale is Stoppable {
     address[] public contributorKeys;                   // Public keys of all contributors.
     mapping(address => Contributor) contributors;       // Mapping of address to contribution amounts.
 
-    function Crowdsale(address _companyWallet,
-                       address _founder1,
-                       address _founder2,
-                       address _founder3)
+    function Crowdsale(address _companyWallet)
     {
         wallet = _companyWallet;
-        founder1 = _founder1;
-        founder2 = _founder2;
-        founder3 = _founder3;
     }
 
     // @notice Returns true if contribution period is currently running
     function isContribPeriodRunning() constant returns (bool) {
-        return !hardCapReached&&
+        return !hardCapReached &&
                isEnabled &&
                startTime <= now &&
                endTime > now;
@@ -224,6 +215,7 @@ contract Crowdsale is Stoppable {
         isEnabled = true;
     }
 
+    /// @dev will be called at the conclusion of the sale to enable token transfers.
     function enableTokenTransfers()
         onlyOwner
     {
@@ -251,6 +243,24 @@ contract Crowdsale is Stoppable {
         require(startTime > now);
 
         maxGasPrice = _gasPrice;
+    }
+
+    function setExchangeRate(uint _exchangeRate)
+        onlyOwner
+    {
+        require(_exchangeRate != 0);
+        require(startTime > now);
+
+        exchangeRate = _exchangeRate;
+    }
+
+    function setHardCap(uint _hardCapAmount)
+        onlyOwner
+    {
+        require(_hardCapAmount != 0);
+        require(startTime > now);
+
+        hardCapAmount = _hardCapAmount;
     }
 
     /*

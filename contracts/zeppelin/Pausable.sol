@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-import "../ownership/Ownable.sol";
+import "./Ownable.sol";
 
 /**
  * @title Pausable

@@ -1,5 +1,6 @@
 pragma solidity ^0.4.15;
-import './base/SafeMath.sol';
+
+import './zeppelin/SafeMath.sol';
 
 /**
  * @title EtherDivvy

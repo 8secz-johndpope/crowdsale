@@ -1,25 +1,22 @@
 pragma solidity ^0.4.15;
-import '../base/Ownable.sol';
-import '../base/SafeMath.sol';
-import '../interfaces/ISmartToken.sol';
-import './ERC20.sol';
 
-/*
-    Smart Token v0.3
+import './Utils.sol';
+import './interfaces/ISmartToken.sol';
+import './zeppelin/token/StandardToken.sol';
+import './zeppelin/Ownable.sol';
+import './zeppelin/SafeMath.sol';
+
+/**
+ * @title Smart Token that is compatible with a Bancor Changer.
 */
-contract SmartToken is ISmartToken, Ownable, ERC20 {
+contract SmartToken is ISmartToken, Ownable, Utils, StandardToken {
     using SafeMath for uint;
 
-    string public version = "0.3";
+    string name;        // Name of the token
+    string symbol;      // Symbol of the token
+    uint8 decimals;     // Decimal places of the token
 
     bool public transfersEnabled = false;    // true if transfer/transferFrom are enabled, false if not
-
-    // triggered when a smart token is deployed - the _token address is defined for forward compatibility, in case we want to trigger the event from a factory
-    event NewSmartToken(address _token);
-    // triggered when the total supply is increased
-    event Issuance(uint256 _amount);
-    // triggered when the total supply is decreased
-    event Destruction(uint256 _amount);
 
     /**
         @dev constructor
@@ -29,10 +26,11 @@ contract SmartToken is ISmartToken, Ownable, ERC20 {
         @param _decimals   for display purposes only
     */
     function SmartToken(string _name, string _symbol, uint8 _decimals)
-        ERC20(_name, _symbol, _decimals)
     {
         require(bytes(_symbol).length <= 6); // validate input
-        NewSmartToken(address(this));
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
     }
 
     // allows execution only when transfers aren't disabled
@@ -67,7 +65,7 @@ contract SmartToken is ISmartToken, Ownable, ERC20 {
         notThis(_to)
     {
         totalSupply = totalSupply.add(_amount);
-        balanceOf[_to] = balanceOf[_to].add(_amount);
+        balances[_to] = balances[_to].add(_amount);
 
         Issuance(_amount);
         Transfer(this, _to, _amount);
@@ -83,7 +81,7 @@ contract SmartToken is ISmartToken, Ownable, ERC20 {
     function destroy(address _from, uint256 _amount) public {
         require(msg.sender == _from || msg.sender == owner); // validate input
 
-        balanceOf[_from] = balanceOf[_from].sub(_amount);
+        balances[_from] = balances[_from].sub(_amount);
         totalSupply = totalSupply.sub(_amount);
 
         Transfer(_from, this, _amount);
@@ -130,4 +128,9 @@ contract SmartToken is ISmartToken, Ownable, ERC20 {
         assert(super.transferFrom(_from, _to, _value));
         return true;
     }
+
+    // triggered when the total supply is increased
+    event Issuance(uint256 _amount);
+    // triggered when the total supply is decreased
+    event Destruction(uint256 _amount);
 }

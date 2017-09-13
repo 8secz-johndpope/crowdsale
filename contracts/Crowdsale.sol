@@ -1,8 +1,8 @@
 pragma solidity ^0.4.15;
 
+import './AO.sol';
 import './zeppelin/Pausable.sol';
 import './zeppelin/SafeMath.sol';
-import './AO.sol';
 
 /**
  * @title TokenBnk Crowdsale
@@ -12,16 +12,16 @@ contract Crowdsale is Pausable {
 
     AO public saveToken;                                // Address of the AO contract.
     address public wallet;                              // Wallet that recieves all sale funds. Will be an instance of EtherDivvy.sol.
-    address public vestingSchedule;                     // Contract for vesting schedule of company and founder tokens.
+    address public vestingSchedule;                     // Contract for vesting schedule of organization and founder tokens.
 
     // Constants for token distributions.
-    uint public constant FOUNDER_STAKE1 = 0;            // 5%
+    uint public constant FOUNDER_STAKE1 = 0;            // 4%
     uint public constant FOUNDER_STAKE2 = 0;            // 3%
-    uint public constant FOUNDER_STAKE3 = 0;            // 2%
-    uint public constant COMPANY_RETAINER    = 0;       // 60%
+    uint public constant FOUNDER_STAKE3 = 0;            // 3%
+    uint public constant ORGANIZATION_RETAINER = 0;     // 60%
     uint public constant CONTRIBUTION_STAKE = 0;        // 30%
 
-    uint public minContribution = 0.01 ether;
+    uint public minContribution = 0.01 ether;           // ~ $3.00
     uint public maxGasPrice = 50000000000;              // 50 GWei
 
     bool public tokenTransfersEnabled = false;          // Token transfers will be enabled at the
@@ -44,8 +44,8 @@ contract Crowdsale is Pausable {
     address[] public contributorKeys;                   // Public keys of all contributors.
     mapping(address => Contributor) contributors;       // Mapping of address to contribution amounts.
 
-    function Crowdsale(address _companyWallet) {
-        wallet = _companyWallet;
+    function Crowdsale(address _organizationWallet) {
+        wallet = _organizationWallet;
     }
 
 
@@ -142,7 +142,7 @@ contract Crowdsale is Pausable {
     }
 
     /// @notice This function will be called at the conclusion of the sale and will
-    /// transfer all company and founder tokens to the vesting schedule contract.
+    /// transfer all organization and founder tokens to the vesting schedule contract.
     function vestTokens()
         onlyOwner
     {
@@ -152,7 +152,7 @@ contract Crowdsale is Pausable {
         saveToken.transfer(vestingSchedule, FOUNDER_STAKE1
             .add(FOUNDER_STAKE2)
             .add(FOUNDER_STAKE3)
-            .add(COMPANY_RETAINER));
+            .add(ORGANIZATION_RETAINER));
     }
 
     /*
@@ -164,6 +164,8 @@ contract Crowdsale is Pausable {
                             uint _endTime)
         onlyOwner
     {
+        require(!initialized);
+
         require(_hardCapAmount != 0);
         hardCapAmount = _hardCapAmount;
 
@@ -178,6 +180,10 @@ contract Crowdsale is Pausable {
         initialized = true;
     }
 
+    /**
+     * @dev Require the _saveToken address to have this contract as an owner or else it throws.
+     *      This contract must be an owner because it will mint / issue fresh tokens for the distribution.
+     */
     function setAndCreateSaveTokens(address _saveToken)
         internal
         onlyOwner
@@ -193,11 +199,12 @@ contract Crowdsale is Pausable {
         saveToken.issue(this, FOUNDER_STAKE1
             .add(FOUNDER_STAKE2)
             .add(FOUNDER_STAKE3)
-            .add(COMPANY_RETAINER)
+            .add(ORGANIZATION_RETAINER)
             .add(CONTRIBUTION_STAKE));
         return true;
     }
 
+    /// @dev This function will be called before the beginning of the sale to enable the contract to accept funds.
     function enableTokenSale()
         onlyOwner
     {
@@ -206,7 +213,7 @@ contract Crowdsale is Pausable {
         isEnabled = true;
     }
 
-    /// @dev will be called at the conclusion of the sale to enable token transfers.
+    /// @dev We will call this function at the conclusion of the sale to allow token transfers.
     function enableTokenTransfers()
         onlyOwner
     {

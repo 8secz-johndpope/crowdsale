@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-import "./interfaces/IERC20.sol";
+import "./zeppelin/token/ERC20.sol";
 import "./zeppelin/Ownable.sol";
 import "./zeppelin/SafeMath.sol";
 
@@ -14,7 +14,7 @@ contract VestingWallet is Ownable {
     mapping(address => VestingSchedule) public schedules;        // vesting schedules for given addresses
     mapping(address => address) public addressChangeRequests;    // requested address changes
 
-    IERC20 vestingToken;
+    ERC20 vestingToken;
 
     event VestingScheduleRegistered(
         address indexed registeredAddress,
@@ -96,7 +96,7 @@ contract VestingWallet is Ownable {
     /// @dev Assigns a vesting token to the wallet.
     /// @param _vestingToken Token that will be vested.
     function VestingWallet(address _vestingToken) {
-        vestingToken = IERC20(_vestingToken);
+        vestingToken = ERC20(_vestingToken);
     }
 
     /// @dev Registers a vesting schedule to an address.

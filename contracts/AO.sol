@@ -1,5 +1,6 @@
 pragma solidity ^0.4.15;
-import './token/SmartToken.sol';
+
+import './SmartToken.sol';
 
 /**
     SaveToken

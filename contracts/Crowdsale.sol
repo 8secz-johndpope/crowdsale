@@ -1,14 +1,13 @@
-pragma solidity ^0.4.13;
-import './base/SafeMath.sol';
-import './base/Stoppable.sol';
+pragma solidity ^0.4.15;
+
+import './zeppelin/Pausable.sol';
+import './zeppelin/SafeMath.sol';
 import './AO.sol';
 
-/*
-    Contribution Crowdsale for TokenBnk Save Tokens. Influenced by District0x's contribution
-    contract model. With the major change being that we are using an 0x influenced vesting
-    contract instead of an in-built solution.
- **/
-contract Crowdsale is Stoppable {
+/**
+ * @title TokenBnk Crowdsale
+ */
+contract Crowdsale is Pausable {
     using SafeMath for uint;
 
     AO public saveToken;                                // Address of the AO contract.
@@ -45,23 +44,15 @@ contract Crowdsale is Stoppable {
     address[] public contributorKeys;                   // Public keys of all contributors.
     mapping(address => Contributor) contributors;       // Mapping of address to contribution amounts.
 
-    function Crowdsale(address _companyWallet)
-    {
+    function Crowdsale(address _companyWallet) {
         wallet = _companyWallet;
     }
 
-    // @notice Returns true if contribution period is currently running
-    function isContribPeriodRunning() constant returns (bool) {
-        return !hardCapReached &&
-               isEnabled &&
-               startTime <= now &&
-               endTime > now;
-    }
 
     function ()
         public 
         payable
-        stopInEmergency
+        whenNotPaused
     {
         contributeWithAddress(msg.sender);
     }
@@ -69,7 +60,7 @@ contract Crowdsale is Stoppable {
     function contribute()
         public
         payable
-        stopInEmergency 
+        whenNotPaused 
     {
         contributeWithAddress(msg.sender);
     }
@@ -80,7 +71,7 @@ contract Crowdsale is Stoppable {
     function contributeWithAddress(address _contributor)
         public
         payable 
-        stopInEmergency
+        whenNotPaused
     {
         require(_contributor != 0x0);
         assert(validContribution());
@@ -277,12 +268,6 @@ contract Crowdsale is Stoppable {
         require(tx.gasprice <= maxGasPrice);
         require(msg.value >= minContribution);
         return true;
-    }
-
-    function getNow()
-        constant returns (uint)
-    {
-        return now;
     }
 
     /*

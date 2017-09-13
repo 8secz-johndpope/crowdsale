@@ -1,3 +1,6 @@
+/// Open Zeppelin Ownable.sol contract. 
+/// Only change is bumping up the pragma to recent version of solidity.
+
 pragma solidity ^0.4.15;
 
 /**
@@ -7,6 +10,8 @@ pragma solidity ^0.4.15;
  */
 contract Ownable {
   address public owner;
+
+  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
   /**
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
@@ -30,7 +35,7 @@ contract Ownable {
    */
   function transferOwnership(address newOwner) onlyOwner {
     require(newOwner != address(0));      
+    OwnershipTransferred(owner, newOwner);
     owner = newOwner;
   }
-
 }

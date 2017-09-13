@@ -1,8 +1,13 @@
 pragma solidity ^0.4.15;
-import "./base/Ownable.sol";
-import "./interfaces/IERC20.sol";
-import "./base/SafeMath.sol";
 
+import "./interfaces/IERC20.sol";
+import "./zeppelin/Ownable.sol";
+import "./zeppelin/SafeMath.sol";
+
+/**
+ * @title Vesting Wallet
+ * @dev Forked from 0x vesting wallet implementation.
+ */
 contract VestingWallet is Ownable {
     using SafeMath for uint;
 

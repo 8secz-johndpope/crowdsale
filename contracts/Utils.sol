@@ -1,7 +1,8 @@
 pragma solidity ^0.4.15;
 
-/*
-    Utilities & Common Modifiers
+/**
+ * @title Utilities & Common Modifiers
+ * @dev Modified from Bancor contract for use with the Smart Token.
 */
 contract Utils {
     /**

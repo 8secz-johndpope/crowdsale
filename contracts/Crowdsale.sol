@@ -44,8 +44,7 @@ contract Crowdsale is Pausable {
     address[] public contributorKeys;                   // Public keys of all contributors.
     mapping(address => Contributor) contributors;       // Mapping of address to contribution amounts.
 
-    function Crowdsale(address _organizationWallet) {
-        wallet = _organizationWallet;
+    function Crowdsale() {
     }
 
 
@@ -159,6 +158,7 @@ contract Crowdsale is Pausable {
      * Admin Functions
      */
     function initializeSale(address _saveToken,
+                            address _etherDivvy,
                             uint _hardCapAmount,
                             uint _startBlock,
                             uint _endBlock)
@@ -174,6 +174,9 @@ contract Crowdsale is Pausable {
 
         require(_endBlock > startBlock);
         endBlock = _endBlock;
+
+        require(isContract(_etherDivvy));
+        wallet = _etherDivvy;
 
         assert(setAndCreateSaveTokens(_saveToken));
 
@@ -265,7 +268,7 @@ contract Crowdsale is Pausable {
      * Helper Functions
      */
     function validContribution()
-        internal returns (bool) 
+        constant internal returns (bool) 
     {
         require(!hardCapReached);
         require(isEnabled);
@@ -275,6 +278,19 @@ contract Crowdsale is Pausable {
         require(tx.gasprice <= maxGasPrice);
         require(msg.value >= minContribution);
         return true;
+    }
+
+    function isContract(address _addr) 
+        constant internal returns(bool)
+    {
+        uint size;
+        if (_addr == 0) {
+            return false;
+        }
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return size > 0;
     }
 
     /*

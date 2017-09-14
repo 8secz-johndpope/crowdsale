@@ -20,11 +20,11 @@ contract EtherDivvy {
         _;
     }
 
-    modifier onlyIfAddressesSet {
-        require(founderOne != 0x0 &&
-                founderTwo != 0x0 &&
-                founderThree != 0x0 &&
-                organization != 0x0);
+    modifier onlyIfAddressesSet(bool yes) {
+        require(yes == (founderOne != 0x0 &&
+                        founderTwo != 0x0 &&
+                        founderThree != 0x0 &&
+                        organization != 0x0));
         _;
     }
 
@@ -34,7 +34,7 @@ contract EtherDivvy {
 
     function divvy()
         onlyMultisig
-        onlyIfAddressesSet
+        onlyIfAddressesSet(true)
     {
         /// Use SafeMath.***() here to mitigate compiler error.
         uint oneHundredth = SafeMath.div(this.balance, 100);
@@ -58,12 +58,8 @@ contract EtherDivvy {
                           address _three,
                           address _organization)
         onlyMultisig
+        onlyIfAddressesSet(false)
     {
-        require(_one != 0x0 &&
-                _two != 0x0 &&
-                _three != 0x0 &&
-                _organization != 0x0);
-
         founderOne = _one;
         founderTwo = _two;
         founderThree = _three;

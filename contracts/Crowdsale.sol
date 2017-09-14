@@ -15,11 +15,11 @@ contract Crowdsale is Pausable {
     address public vestingSchedule;                     // Contract for vesting schedule of organization and founder tokens.
 
     // Constants for token distributions.
-    uint public constant FOUNDER_STAKE1 = 50000;            // 4%
-    uint public constant FOUNDER_STAKE2 = 40000;            // 3%
-    uint public constant FOUNDER_STAKE3 = 30000;            // 3%
-    uint public constant ORGANIZATION_RETAINER = 80000;     // 60%
-    uint public constant CONTRIBUTION_STAKE = 80000;        // 30%
+    uint public constant FOUNDER_STAKE1 = 40000 ether;            // 4%
+    uint public constant FOUNDER_STAKE2 = 30000 ether;            // 3%
+    uint public constant FOUNDER_STAKE3 = 30000 ether;            // 3%
+    uint public constant ORGANIZATION_RETAINER = 100000 ether;     // 60%
+    uint public constant CONTRIBUTION_STAKE = 100000 ether;        // 30%
 
     uint public minContribution = 0.01 ether;           // ~ $3.00
     uint public maxGasPrice = 50000000000;              // 50 GWei
@@ -163,6 +163,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(!initialized);
+        require(!isEnabled);
 
         require(_hardCapAmount != 0);
         hardCapAmount = _hardCapAmount;
@@ -176,7 +177,7 @@ contract Crowdsale is Pausable {
         require(isContract(_etherDivvy));
         wallet = _etherDivvy;
 
-        assert(setAndCreateSaveTokens(_saveToken));
+        saveToken = AO(_saveToken);
 
         initialized = true;
     }
@@ -185,24 +186,15 @@ contract Crowdsale is Pausable {
      * @dev Require the _saveToken address to have this contract as an owner or else it throws.
      *      This contract must be an owner because it will mint / issue fresh tokens for the distribution.
      */
-    function setAndCreateSaveTokens(address _saveToken)
-        internal
+    function createTokens()
+        public
         onlyOwner
-        returns (bool)
     {
-        require(address(saveToken) == 0x0);
-        require(_saveToken != 0x0);
+        require(address(saveToken) != 0x0);
         require(!isEnabled);
-        saveToken = AO(_saveToken);
 
-        // Create the tokens and send them to this address.
-        assert(saveToken.totalSupply() == 0);
-        saveToken.issue(this, FOUNDER_STAKE1
-            .add(FOUNDER_STAKE2)
-            .add(FOUNDER_STAKE3)
-            .add(ORGANIZATION_RETAINER)
-            .add(CONTRIBUTION_STAKE));
-        return true;
+        saveToken.call(bytes4(keccak256("issue(address,uint256)")), address(this), 100000000000000000000);
+        assert(saveToken.balanceOf(address(this)) > 0);
     }
 
     /// @dev This function will be called before the beginning of the sale to enable the contract to accept funds.

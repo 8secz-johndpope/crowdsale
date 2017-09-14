@@ -74,5 +74,19 @@ contract('TokenBnk crowdsale', function(accounts) {
         )
     })
 
+    it('Should be enabled', async function() {
+        
+        let enabled = await crowdsale.enableTokenSale()
+        assert.equal(
+            enabled,
+            true,
+            'It should be enabled.'
+        )
+    })
+
+    it('Should accept contributions', async function() {
+
+    })
+
 
 })

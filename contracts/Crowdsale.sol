@@ -83,6 +83,7 @@ contract Crowdsale is Pausable {
         // If the new contribution hits the hard cap.
         if (newTotal >= hardCapAmount && oldTotal < hardCapAmount) {
             hardCapReached = true;
+            endBlock = getBlockNumber();
             HardCapReached();
 
             // Only accept funds up to the hard cap amount.
@@ -115,7 +116,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(isEnabled);
-        require(endBlock < block.number);
+        require(endBlock < getBlockNumber());
 
         uint i = _offset;
         uint compensatedCount = 0;
@@ -144,7 +145,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(isEnabled);
-        require(endBlock < block.number);
+        require(endBlock < getBlockNumber());
 
         saveToken.transfer(vestingSchedule, FOUNDER_STAKE1
             .add(FOUNDER_STAKE2)
@@ -168,7 +169,7 @@ contract Crowdsale is Pausable {
         require(_hardCapAmount != 0);
         hardCapAmount = _hardCapAmount;
 
-        require(_startBlock > block.number);
+        require(_startBlock > getBlockNumber());
         startBlock = _startBlock;
 
         require(_endBlock > startBlock);
@@ -207,7 +208,7 @@ contract Crowdsale is Pausable {
     function enableTokenSale()
         onlyOwner
     {
-        require(startBlock <= block.number);
+        require(startBlock <= getBlockNumber());
         require(initialized);
         isEnabled = true;
     }
@@ -216,7 +217,7 @@ contract Crowdsale is Pausable {
     function enableTokenTransfers()
         onlyOwner
     {
-        require(endBlock < block.number);
+        require(endBlock < getBlockNumber());
         saveToken.disableTransfers(false);
         tokenTransfersEnabled = true;
     }
@@ -228,7 +229,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_minContrib > 0);
-        require(startBlock > block.number);
+        require(startBlock > getBlockNumber());
 
         minContribution = _minContrib;
     }
@@ -237,7 +238,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_gasPrice > 0);
-        require(startBlock > block.number);
+        require(startBlock > getBlockNumber());
 
         maxGasPrice = _gasPrice;
     }
@@ -246,7 +247,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_exchangeRate != 0);
-        require(startBlock > block.number);
+        require(startBlock > getBlockNumber());
 
         exchangeRate = _exchangeRate;
     }
@@ -255,7 +256,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_hardCapAmount != 0);
-        require(startBlock > block.number);
+        require(startBlock > getBlockNumber());
 
         hardCapAmount = _hardCapAmount;
     }
@@ -268,8 +269,8 @@ contract Crowdsale is Pausable {
     {
         require(!hardCapReached);
         require(isEnabled);
-        require(startBlock <= block.number);
-        require(endBlock > block.number);
+        require(startBlock <= getBlockNumber());
+        require(endBlock > getBlockNumber());
 
         require(tx.gasprice <= maxGasPrice);
         require(msg.value >= minContribution);
@@ -287,6 +288,13 @@ contract Crowdsale is Pausable {
             size := extcodesize(_addr)
         }
         return size > 0;
+    }
+
+     /// @notice This function is overridden by the test Mocks.
+    function getBlockNumber()
+        internal constant returns (uint)
+    {
+        return block.number;
     }
 
     /*

@@ -25,4 +25,19 @@ contract('TokenBnk crowdsale', function(accounts) {
         crowdsale = await Crowdsale.new()
         etherDivvy = await EtherDivvy.new()
     })
+
+    it('Initializes crowdsale', async function() {
+
+        /// First set the owner of ao to the crowdsale contract
+        ao.transferOwnership(crowdsale.address)
+
+        /// Will generate the tokens
+        await crowdsale.initializeSale(
+            ao.address,
+            etherDivvy.address,
+            web3.toWei(1000),
+            startBlock,
+            endBlock 
+        )
+    })
 })

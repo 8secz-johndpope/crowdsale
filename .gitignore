@@ -1,4 +1,3 @@
 build/
-contracts/Migrations.sol
 yarn.lock
 node_modules/

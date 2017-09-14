@@ -193,8 +193,14 @@ contract Crowdsale is Pausable {
         require(address(saveToken) != 0x0);
         require(!isEnabled);
 
-        saveToken.call(bytes4(keccak256("issue(address,uint256)")), address(this), 100000000000000000000);
-        assert(saveToken.balanceOf(address(this)) > 0);
+        uint totalSupplyOfTokens = FOUNDER_STAKE1
+            .add(FOUNDER_STAKE2)
+            .add(FOUNDER_STAKE3)
+            .add(ORGANIZATION_RETAINER)
+            .add(CONTRIBUTION_STAKE);
+
+        saveToken.call(bytes4(keccak256("issue(address,uint256)")), address(this), totalSupplyOfTokens);
+        assert(saveToken.balanceOf(address(this)) == totalSupplyOfTokens);
     }
 
     /// @dev This function will be called before the beginning of the sale to enable the contract to accept funds.

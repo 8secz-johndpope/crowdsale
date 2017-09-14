@@ -1,4 +1,5 @@
 const BigNumber = require('bignumber.js')
+const assertFail = require('./helpers/assertFail.js')
 
 const AO = artifacts.require('../contracts/test/AOMock.sol')
 const Crowdsale = artifacts.require('../contracts/test/CrowdsaleMock.sol')
@@ -76,7 +77,13 @@ contract('TokenBnk crowdsale', function(accounts) {
 
     it('Should be enabled', async function() {
         
-        let enabled = await crowdsale.enableTokenSale()
+        /// First set the mock block number to be greater than our start constant.
+        await crowdsale.setBlockNumber(startBlock + 1)
+
+        /// Enable the sale
+        await crowdsale.enableTokenSale()
+
+        let enabled = await crowdsale.isEnabled()
         assert.equal(
             enabled,
             true,
@@ -86,6 +93,50 @@ contract('TokenBnk crowdsale', function(accounts) {
 
     it('Should accept contributions', async function() {
 
+        let balanceBefore1 = await web3.eth.getBalance(mockContributor1).toNumber()
+        let balanceBefore2 = await web3.eth.getBalance(mockContributor2).toNumber()
+
+        let contributedAmountBefore = await web3.eth.getBalance(etherDivvy.address).toNumber()
+
+        let contribution1 = web3.toWei(5)
+        let contribution2 = web3.toWei(10)
+
+        await crowdsale.contribute({from: mockContributor1, value: contribution1, gasPrice: 20000000000})
+        await crowdsale.contribute({from: mockContributor2, value: contribution2, gasPrice: 50000000000})
+
+        assert.equal(
+            await web3.eth.getBalance(crowdsale.address).toNumber(),
+            0,
+            'The crowdsale contract should hold no ether from contributions'
+        )
+        
+        assert.isAbove(
+            await web3.eth.getBalance(etherDivvy.address).toNumber(),
+            contributedAmountBefore,
+            'The contributions should go into the EtherDivvy contract'
+        )
+
+        assert.isAbove(
+            balanceBefore1,
+            await web3.eth.getBalance(mockContributor1).toNumber(),            
+            'Higher balance before contribution'
+        )
+
+        assert.isAbove(
+            balanceBefore2,
+            await web3.eth.getBalance(mockContributor2).toNumber(),
+            'Higher balance before contribution'
+        )
+    })
+
+    it('Should throw faulty contributions', async function() {
+        await assertFail(async function(){
+            await crowdsale.contribution({from: mockContributor1, value: web3.toWei(5), gasPrice: 50000000001})
+        }, 'Should throw if gas price is over the max gas price.')
+
+        await assertFail(async function() {
+            await crowdsale.contribution({from: mockContributor1, value: web3.toWei(0.45), gasPrice: 50000000000})
+        }, 'Should throw if contribution value is less than the min contribution.')
     })
 
 

@@ -11,7 +11,7 @@ contract Crowdsale is Pausable {
     using SafeMath for uint;
 
     AO public saveToken;                                // Address of the AO contract.
-    address public wallet;                              // Wallet that recieves all sale funds. Will be an instance of EtherDivvy.sol.
+    address public wallet;                              // Wallet that recieves all ether from the sale. Will be an instance of EtherDivvy.sol.
     address public vestingSchedule;                     // Contract for vesting schedule of organization and founder tokens.
 
     // Constants for token distributions.

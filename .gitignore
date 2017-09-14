@@ -1,3 +1,4 @@
 build/
-flow.txt
 contracts/Migrations.sol
+yarn.lock
+node_modules/

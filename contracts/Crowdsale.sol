@@ -15,11 +15,11 @@ contract Crowdsale is Pausable {
     address public vestingSchedule;                     // Contract for vesting schedule of organization and founder tokens.
 
     // Constants for token distributions.
-    uint public constant FOUNDER_STAKE1 = 0;            // 4%
-    uint public constant FOUNDER_STAKE2 = 0;            // 3%
-    uint public constant FOUNDER_STAKE3 = 0;            // 3%
-    uint public constant ORGANIZATION_RETAINER = 0;     // 60%
-    uint public constant CONTRIBUTION_STAKE = 0;        // 30%
+    uint public constant FOUNDER_STAKE1 = 50000;            // 4%
+    uint public constant FOUNDER_STAKE2 = 40000;            // 3%
+    uint public constant FOUNDER_STAKE3 = 30000;            // 3%
+    uint public constant ORGANIZATION_RETAINER = 80000;     // 60%
+    uint public constant CONTRIBUTION_STAKE = 80000;        // 30%
 
     uint public minContribution = 0.01 ether;           // ~ $3.00
     uint public maxGasPrice = 50000000000;              // 50 GWei
@@ -44,9 +44,7 @@ contract Crowdsale is Pausable {
     address[] public contributorKeys;                   // Public keys of all contributors.
     mapping(address => Contributor) contributors;       // Mapping of address to contribution amounts.
 
-    function Crowdsale() {
-    }
-
+    function Crowdsale() {}
 
     function ()
         public 

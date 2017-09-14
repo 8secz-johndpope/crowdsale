@@ -35,8 +35,8 @@ contract Crowdsale is Pausable {
 
     uint public exchangeRate = 30000;                   // The number of AO tokens that will be created per ether.
     uint public hardCapAmount = 0;                      // Amount in wei that will trigger hard cap / end of sale.
-    uint public startTime = 0;                          // UNIX timestamp for start of sale.
-    uint public endTime = 0;                            // UNIX timestamp for end of sale.
+    uint public startBlock = 0;                         // Block that starts the sale.
+    uint public endBlock = 0;                           // Block that ends the sale.
     bool public initialized;                            // True if crowdsale has been initialized.
     bool public isEnabled;                              // True if crowdsale has been enabled.
     bool public hardCapReached;                         // True if hard cap was reached.
@@ -118,7 +118,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(isEnabled);
-        require(endTime < now);
+        require(endBlock < block.number);
 
         uint i = _offset;
         uint compensatedCount = 0;
@@ -147,7 +147,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(isEnabled);
-        require(endTime < now);
+        require(endBlock < block.number);
 
         saveToken.transfer(vestingSchedule, FOUNDER_STAKE1
             .add(FOUNDER_STAKE2)
@@ -160,8 +160,8 @@ contract Crowdsale is Pausable {
      */
     function initializeSale(address _saveToken,
                             uint _hardCapAmount,
-                            uint _startTime,
-                            uint _endTime)
+                            uint _startBlock,
+                            uint _endBlock)
         onlyOwner
     {
         require(!initialized);
@@ -169,11 +169,11 @@ contract Crowdsale is Pausable {
         require(_hardCapAmount != 0);
         hardCapAmount = _hardCapAmount;
 
-        require(_startTime > now);
-        startTime = _startTime;
+        require(_startBlock > block.number);
+        startBlock = _startBlock;
 
-        require(_endTime > startTime);
-        endTime = _endTime;
+        require(_endBlock > startBlock);
+        endBlock = _endBlock;
 
         assert(setAndCreateSaveTokens(_saveToken));
 
@@ -208,7 +208,7 @@ contract Crowdsale is Pausable {
     function enableTokenSale()
         onlyOwner
     {
-        require(startTime <= now);
+        require(startBlock <= block.number);
         require(initialized);
         isEnabled = true;
     }
@@ -217,7 +217,7 @@ contract Crowdsale is Pausable {
     function enableTokenTransfers()
         onlyOwner
     {
-        require(endTime < now);
+        require(endBlock < block.number);
         saveToken.disableTransfers(false);
         tokenTransfersEnabled = true;
     }
@@ -229,7 +229,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_minContrib > 0);
-        require(startTime > now);
+        require(startBlock > block.number);
 
         minContribution = _minContrib;
     }
@@ -238,7 +238,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_gasPrice > 0);
-        require(startTime > now);
+        require(startBlock > block.number);
 
         maxGasPrice = _gasPrice;
     }
@@ -247,7 +247,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_exchangeRate != 0);
-        require(startTime > now);
+        require(startBlock > block.number);
 
         exchangeRate = _exchangeRate;
     }
@@ -256,7 +256,7 @@ contract Crowdsale is Pausable {
         onlyOwner
     {
         require(_hardCapAmount != 0);
-        require(startTime > now);
+        require(startBlock > block.number);
 
         hardCapAmount = _hardCapAmount;
     }
@@ -269,8 +269,8 @@ contract Crowdsale is Pausable {
     {
         require(!hardCapReached);
         require(isEnabled);
-        require(startTime <= now);
-        require(endTime > now);
+        require(startBlock <= block.number);
+        require(endBlock > block.number);
 
         require(tx.gasprice <= maxGasPrice);
         require(msg.value >= minContribution);

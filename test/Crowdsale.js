@@ -20,7 +20,7 @@ contract('TokenBnk crowdsale', function(accounts) {
     const endBlock = 104000
     const exchangeRate = 30000
 
-    const totalSupply = 200000
+    const totalSupply = 3e23
 
     it('Deploys all contracts', async function() {
         ao = await AO.new()
@@ -42,15 +42,21 @@ contract('TokenBnk crowdsale', function(accounts) {
             endBlock 
         )
 
+        /// Check that the crowdsale flipped on the switch that it was initialized.
         let initialized = await crowdsale.initialized()
         assert.equal(
             initialized,
             true,
             'It should have initialized crowdsale'
-        )
+        )        
+    })
 
+    it('Should generate the tokens and send them to crowdsale address', async function() {
+
+        /// Create the tokens
         await crowdsale.createTokens()
-
+        
+        /// Assert balances are equal
         let _totalSupply = await ao.totalSupply()
         let _balanceOf = await ao.balanceOf(crowdsale.address)
 
@@ -60,10 +66,12 @@ contract('TokenBnk crowdsale', function(accounts) {
             'It should have sent all generated tokens to the crowdsale.'
         )
 
-        console.log(_totalSupply)
-    })
-
-    it('check this', async function() {
+        /// Assert balance / total supply is what we expected.
+        assert.equal(
+            _totalSupply.toNumber(),
+            totalSupply,
+            'It should have created the number of tokens we expect.'
+        )
     })
 
 

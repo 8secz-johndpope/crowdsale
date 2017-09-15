@@ -22,6 +22,7 @@ contract('TokenBnk crowdsale', function(accounts) {
     const exchangeRate = 30000
 
     const totalSupply = 3e23
+    const hardCapAmount = web3.toWei(100)
 
     it('Deploys all contracts', async function() {
         ao = await AO.new()
@@ -38,7 +39,7 @@ contract('TokenBnk crowdsale', function(accounts) {
         await crowdsale.initializeSale(
             ao.address,
             etherDivvy.address,
-            web3.toWei(1000),
+            hardCapAmount,
             startBlock,
             endBlock 
         )
@@ -98,8 +99,8 @@ contract('TokenBnk crowdsale', function(accounts) {
 
         let contributedAmountBefore = await web3.eth.getBalance(etherDivvy.address).toNumber()
 
-        let contribution1 = web3.toWei(5)
-        let contribution2 = web3.toWei(10)
+        let contribution1 = web3.toWei(4)
+        let contribution2 = web3.toWei(6)
 
         await crowdsale.contribute({from: mockContributor1, value: contribution1, gasPrice: 20000000000})
         await crowdsale.contribute({from: mockContributor2, value: contribution2, gasPrice: 50000000000})
@@ -137,6 +138,29 @@ contract('TokenBnk crowdsale', function(accounts) {
         await assertFail(async function() {
             await crowdsale.contribution({from: mockContributor1, value: web3.toWei(0.45), gasPrice: 50000000000})
         }, 'Should throw if contribution value is less than the min contribution.')
+    })
+
+    it('Should trigger HardCap() event and stop the crowdsale on hard cap hit', async function() {
+        
+        /// We already have a contribution amount of 10 ether from the transactions in the test above
+        /// This transaction should send 90 eth as contribution and recieve 1 eth back
+        let contribution = web3.toWei(91)
+        
+        let balanceBefore = await web3.eth.getBalance(mockContributor1)
+
+        await crowdsale.contribute({from: mockContributor1, value: contribution, gasPrice: 50000000000})
+        
+        assert.equal(
+            await web3.eth.getBalance(etherDivvy.address).toNumber(),
+            hardCapAmount,
+            'The entire amount of funds up to Hard Cap should go into EtherDivvy'
+        )
+
+        assert.equal(
+            await web3.eth.getBalance(mockContributor1).toNumber(),
+            balanceBefore - web3.toWei(90),
+            'Should have only sent 90 wei'
+        )
     })
 
 

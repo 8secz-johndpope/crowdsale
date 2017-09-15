@@ -18,8 +18,8 @@ contract Crowdsale is Pausable {
     uint public constant FOUNDER_STAKE1 = 40000 ether;            // 4%
     uint public constant FOUNDER_STAKE2 = 30000 ether;            // 3%
     uint public constant FOUNDER_STAKE3 = 30000 ether;            // 3%
-    uint public constant ORGANIZATION_RETAINER = 100000 ether;     // 60%
-    uint public constant CONTRIBUTION_STAKE = 100000 ether;        // 30%
+    uint public constant ORGANIZATION_RETAINER = 100000 ether;    // 60%
+    uint public constant CONTRIBUTION_STAKE = 100000 ether;       // 30%
 
     uint public minContribution = 0.01 ether;           // ~ $3.00
     uint public maxGasPrice = 50000000000;              // 50 GWei
@@ -104,7 +104,7 @@ contract Crowdsale is Pausable {
             msg.sender.transfer(excessContribution);
         }
 
-        NewContribution(_contributor, contribution, newTotal, contributorKeys.length);
+        NewContribution(_contributor, contribution - excessContribution, newTotal, contributorKeys.length);
     }
 
     /// @notice After the conclusion of the sale this function will need to be called
@@ -261,6 +261,18 @@ contract Crowdsale is Pausable {
         hardCapAmount = _hardCapAmount;
     }
 
+    /// @notice Wrapper over the `transferOwnership()` function to only be called after conclusion
+    ///         of the sale and when the protocol is deployed, to change the owner of the token.
+    function changeTokenOwner(address _newOwner)
+        public 
+        onlyOwner
+    {
+        require(endBlock < getBlockNumber());
+        saveToken.call(bytes4(keccak256("transferOwnership(address)")), _newOwner);
+
+        assert(saveToken.owner() == _newOwner);
+    }
+
     /*
      * Helper Functions
      */
@@ -290,7 +302,7 @@ contract Crowdsale is Pausable {
         return size > 0;
     }
 
-     /// @notice This function is overridden by the test Mocks.
+     /// @notice This function is overridden by the test mocks.
     function getBlockNumber()
         internal constant returns (uint)
     {

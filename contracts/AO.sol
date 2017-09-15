@@ -3,7 +3,7 @@ pragma solidity ^0.4.15;
 import './SmartToken.sol';
 
 /**
-    SaveToken
+ * @title Save Token
  */
 contract AO is SmartToken {
     

@@ -16,7 +16,8 @@ contract('TokenBnk crowdsale', function(accounts) {
 
     let ao 
     let crowdsale
-    let etherDivvy 
+    let etherDivvy
+    let vestingSchedule 
 
     const startBlock = 100000
     const endBlock = 104000
@@ -29,6 +30,7 @@ contract('TokenBnk crowdsale', function(accounts) {
         ao = await AO.new()
         crowdsale = await Crowdsale.new()
         etherDivvy = await EtherDivvy.new()
+        vestingSchedule = await VestingSchedule.new()
     })
 
     it('Initializes crowdsale', async function() {
@@ -40,7 +42,7 @@ contract('TokenBnk crowdsale', function(accounts) {
         await crowdsale.initializeSale(
             ao.address,
             etherDivvy.address,
-            vestingWallet.address,
+            vestingSchedule.address,
             hardCapAmount,
             startBlock,
             endBlock 
@@ -181,9 +183,29 @@ contract('TokenBnk crowdsale', function(accounts) {
         }, 'Should throw after Hard Cap.')
     })
 
-    it("Should vest tokens and contribute contributors", async function() {
+    it("Should vest tokens", async function() {
 
-        await crowdsale.
+        crowdsale.setBlockNumber(endBlock + 1)
+
+        await crowdsale.enableTokenTransfers()
+
+        let tokensBefore = await ao.balanceOf(crowdsale.address)
+        await crowdsale.vestTokens()
+        let tokensAfter = await ao.balanceOf(crowdsale.address)
+
+        assert.isAbove(
+            tokensBefore,
+            tokensAfter,
+            'It should have sent the tokens.'
+        )
+
+        let bal = await ao.balanceOf(vestingSchedule.address)
+
+        assert.isAbove(
+            bal.toNumber(),
+            0,
+            'Should have some tokens.'
+        )
     })
 
 })

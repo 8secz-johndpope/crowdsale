@@ -140,7 +140,7 @@ contract('TokenBnk crowdsale', function(accounts) {
         }, 'Should throw if contribution value is less than the min contribution.')
     })
 
-    it('Should trigger HardCap() event and stop the crowdsale on hard cap hit', async function() {
+    it('Should trigger HardCap() event and stop the crowdsale on hard cap hit and excess contribution sent back', async function() {
         
         /// We already have a contribution amount of 10 ether from the transactions in the test above
         /// This transaction should send 90 eth as contribution and recieve 1 eth back
@@ -156,10 +156,18 @@ contract('TokenBnk crowdsale', function(accounts) {
             'The entire amount of funds up to Hard Cap should go into EtherDivvy'
         )
 
-        assert.equal(
+        /// Because of gas fees it should be slightly below this number ... [see next test]
+        assert.isBelow(
             await web3.eth.getBalance(mockContributor1).toNumber(),
             balanceBefore - web3.toWei(90),
-            'Should have only sent 90 wei'
+            'Should have only sent 90 eth'
+        )
+
+        /// ...But also above this number
+        assert.isAbove(
+            await web3.eth.getBalance(mockContributor1).toNumber(),
+            balanceBefore - web3.toWei(91),
+            'Should NOT have sent 91 eth'
         )
     })
 

@@ -4,6 +4,7 @@ const assertFail = require('./helpers/assertFail.js')
 const AO = artifacts.require('../contracts/test/AOMock.sol')
 const Crowdsale = artifacts.require('../contracts/test/CrowdsaleMock.sol')
 const EtherDivvy = artifacts.require('../contracts/EtherDivvy.sol')
+const VestingSchedule = artifacts.require('../contracts/VestingWallet.sol')
 
 contract('TokenBnk crowdsale', function(accounts) {
     const TokenBnk = accounts[0]
@@ -39,6 +40,7 @@ contract('TokenBnk crowdsale', function(accounts) {
         await crowdsale.initializeSale(
             ao.address,
             etherDivvy.address,
+            vestingWallet.address,
             hardCapAmount,
             startBlock,
             endBlock 
@@ -131,7 +133,7 @@ contract('TokenBnk crowdsale', function(accounts) {
     })
 
     it('Should throw faulty contributions', async function() {
-        await assertFail(async function(){
+        await assertFail(async function() {
             await crowdsale.contribution({from: mockContributor1, value: web3.toWei(5), gasPrice: 50000000001})
         }, 'Should throw if gas price is over the max gas price.')
 
@@ -171,5 +173,17 @@ contract('TokenBnk crowdsale', function(accounts) {
         )
     })
 
+
+    it("Should throw any contributions after the hard cap is reached", async function() {
+
+        await assertFail(async function() {
+            await crowdsale.contribution({from: mockContributor1, value: web3.toWei(5), gasPrice: 40000000000})
+        }, 'Should throw after Hard Cap.')
+    })
+
+    it("Should vest tokens and contribute contributors", async function() {
+
+        await crowdsale.
+    })
 
 })

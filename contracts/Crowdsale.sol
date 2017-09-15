@@ -158,6 +158,7 @@ contract Crowdsale is Pausable {
      */
     function initializeSale(address _saveToken,
                             address _etherDivvy,
+                            address _vestingSched,
                             uint _hardCapAmount,
                             uint _startBlock,
                             uint _endBlock)
@@ -165,6 +166,14 @@ contract Crowdsale is Pausable {
     {
         require(!initialized);
         require(!isEnabled);
+
+        require(_etherDivvy != 0x0 && _vestingSched != 0x0);
+
+        require(isContract(_etherDivvy));
+        wallet = _etherDivvy;
+
+        require(isContract(_vestingSched));
+        vestingSchedule = _vestingSched;
 
         require(_hardCapAmount != 0);
         hardCapAmount = _hardCapAmount;
@@ -174,9 +183,6 @@ contract Crowdsale is Pausable {
 
         require(_endBlock > startBlock);
         endBlock = _endBlock;
-
-        require(isContract(_etherDivvy));
-        wallet = _etherDivvy;
 
         saveToken = AO(_saveToken);
 

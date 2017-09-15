@@ -104,7 +104,7 @@ contract Crowdsale is Pausable {
             msg.sender.transfer(excessContribution);
         }
 
-        NewContribution(_contributor, contribution - excessContribution, newTotal, contributorKeys.length);
+        NewContribution(_contributor, contribution - excessContribution, newTotal - excessContribution, contributorKeys.length);
     }
 
     /// @notice After the conclusion of the sale this function will need to be called

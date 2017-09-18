@@ -45,9 +45,9 @@ contract EtherDivvy {
                                     SafeMath.sub(
                                         SafeMath.sub(this.balance, fivePercent),
                                     threePercent),
-                                twoPercent);        // Sorry this is so ugly.
+                                 twoPercent);
 
-        founderThree.transfer(twoPercent);          // Sends funds from the least to the most.
+        founderThree.transfer(twoPercent);          // Sends funds from least significant portion to most.
         founderTwo.transfer(threePercent);
         founderOne.transfer(fivePercent);
         organization.transfer(organizationShare);

@@ -204,8 +204,23 @@ contract('TokenBnk crowdsale', function(accounts) {
         assert.isAbove(
             bal.toNumber(),
             0,
-            'Should have some tokens.'
+            'Should have the tokens.'
         )
+    })
+
+    it("Should compensate contributors", async function() {
+
+        await crowdsale.compensateContributors(0, 10)
+
+        // let one = await ao.balanceOf(mockContributor1)
+        // let two = await ao.balanceOf(mockContributor2)
+
+        // console.log(one.toNumber())
+        // console.log(two.toNumber())
+
+        // let bal = await ao.balanceOf(crowdsale.address)
+
+        // console.log(bal.toNumber())
     })
 
 })

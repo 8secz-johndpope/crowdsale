@@ -33,7 +33,7 @@ contract Crowdsale is Pausable {
         uint amountCompensated;
     }
 
-    uint public exchangeRate = 30000;                   // The number of AO tokens that will be created per ether.
+    uint public exchangeRate = 30;                      // The number of AO tokens that will be created per wei.
     uint public hardCapAmount = 0;                      // Amount in wei that will trigger hard cap / end of sale.
     uint public startBlock = 0;                         // Block that starts the sale.
     uint public endBlock = 0;                           // Block that ends the sale.

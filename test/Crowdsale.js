@@ -206,21 +206,51 @@ contract('TokenBnk crowdsale', function(accounts) {
             0,
             'Should have the tokens.'
         )
+        console.log(bal.toNumber())
     })
 
     it("Should compensate contributors", async function() {
 
+        let oneBefore = await ao.balanceOf(mockContributor1)
+        let twoBefore = await ao.balanceOf(mockContributor2)
+
+        assert.equal(
+            oneBefore.toNumber(),
+            0,
+            "Should have zero tokens before being contributed."
+        )
+
+        assert.equal(
+            twoBefore.toNumber(),
+            0,
+            "Should have zero tokens before being contributed."
+        )
+
+        let balBefore = await ao.balanceOf(crowdsale.address)        
+
         await crowdsale.compensateContributors(0, 10)
 
-        // let one = await ao.balanceOf(mockContributor1)
-        // let two = await ao.balanceOf(mockContributor2)
+        let oneAfter = await ao.balanceOf(mockContributor1)
+        let twoAfter = await ao.balanceOf(mockContributor2)
 
-        // console.log(one.toNumber())
-        // console.log(two.toNumber())
+        assert.isAbove(
+            oneAfter.toNumber(),
+            oneBefore.toNumber(),
+            "Should have the tokens now."
+        )
+        assert.isAbove(
+            twoAfter.toNumber(),
+            twoBefore.toNumber(),
+            "Should have the tokens now."
+        )
 
-        // let bal = await ao.balanceOf(crowdsale.address)
+        let balAfter = await ao.balanceOf(crowdsale.address)
 
-        // console.log(bal.toNumber())
+        assert.isBelow(
+            balAfter.toNumber(),
+            balBefore.toNumber(),
+            "Should have less tokens after sending out compensations."
+        )
     })
 
 })

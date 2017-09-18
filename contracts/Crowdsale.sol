@@ -19,7 +19,7 @@ contract Crowdsale is Pausable {
     uint public constant FOUNDER_STAKE2 = 30000 ether;            // 3%
     uint public constant FOUNDER_STAKE3 = 30000 ether;            // 3%
     uint public constant ORGANIZATION_RETAINER = 100000 ether;    // 60%
-    uint public constant CONTRIBUTION_STAKE = 100000 ether;       // 30%
+    uint public constant CONTRIBUTION_STAKE = 100000 ether;       // 30% TODO: Finish the math
 
     uint public minContribution = 0.01 ether;           // ~ $3.00
     uint public maxGasPrice = 50000000000;              // 50 GWei
